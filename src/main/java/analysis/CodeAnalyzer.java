@@ -3,8 +3,10 @@ package analysis;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import analysis.InfoModel.ClassInfo;
 import analysis.visitors.ClassVisitor;
@@ -15,8 +17,6 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-import org.eclipse.jdt.core.dom.*;
-
 
 public class CodeAnalyzer {
 
@@ -26,6 +26,7 @@ public class CodeAnalyzer {
     private int classCount = 0;
     private int lineCount = 0;
     private int methodCount = 0;
+    private Set<String> packages = new HashSet<>();  // Utiliser un Set pour éviter les doublons de packages
 
     // Liste des informations de classes
     private List<ClassInfo> classesInfo = new ArrayList<>();
@@ -51,6 +52,11 @@ public class CodeAnalyzer {
 
             classCount += classVisitor.getClassCount();
             methodCount += classVisitor.getMethodCount();
+
+            // Récupérer le nom du package pour éviter les doublons
+            if (parse.getPackage() != null) {
+                packages.add(parse.getPackage().getName().getFullyQualifiedName());
+            }
 
             // Récupération des informations de classes analysées
             classesInfo.addAll(classVisitor.getClassesInfo());
@@ -99,6 +105,23 @@ public class CodeAnalyzer {
 
         // Créer l'AST
         return (CompilationUnit) parser.createAST(null);
+    }
+
+    // Fonction pour calculer le nombre moyen de méthodes par classe
+    public double getAverageMethodsPerClass() {
+        if (classCount == 0) return 0;
+        return (double) methodCount / classCount;
+    }
+
+    // Fonction pour calculer le nombre moyen de lignes de code par méthode
+    public double getAverageLinesPerMethod() {
+        if (methodCount == 0) return 0;
+        return (double) lineCount / methodCount;
+    }
+
+    // Fonction pour récupérer le nombre de packages
+    public int getPackageCount() {
+        return packages.size();
     }
 
     // Accesseurs pour les résultats
