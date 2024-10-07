@@ -17,7 +17,8 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-
+/*Classe principale d'analyse de code qui parcourt les fichiers source d'un projet,crée un AST (Abstract Syntax Tree) pour chaque fichier,
+et instancie les différents visiteurs pour collecter les informations nécessaires à l'analyse */
 public class CodeAnalyzer {
 
     private String projectSourcePath;
@@ -40,20 +41,19 @@ public class CodeAnalyzer {
         final File folder = new File(projectSourcePath);
         ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
 
-        // Parcourir chaque fichier .java
+        // Parcourir chaque fichier pour le parser
         for (File fileEntry : javaFiles) {
             String content = FileUtils.readFileToString(fileEntry, "UTF-8");
 
             CompilationUnit parse = parse(content.toCharArray());
 
-            // Analyse des classes
+            //Visite de la classe
             ClassVisitor classVisitor = new ClassVisitor(parse);
             parse.accept(classVisitor);
 
             classCount += classVisitor.getClassCount();
             methodCount += classVisitor.getMethodCount();
 
-            // Récupérer le nom du package pour éviter les doublons
             if (parse.getPackage() != null) {
                 packages.add(parse.getPackage().getName().getFullyQualifiedName());
             }
@@ -81,50 +81,44 @@ public class CodeAnalyzer {
         return javaFiles;
     }
 
-    // Fonction pour créer l'AST à partir du contenu d'un fichier .java
+    // Fonction pour créer l'AST à partir du contenu d'un fichier
     private CompilationUnit parse(char[] classSource) {
         ASTParser parser = ASTParser.newParser(AST.JLS4); // Utiliser JLS8 pour la compatibilité avec Java 8+
 
-        // Activer la résolution des bindings
+        // Activer la résolution des bindings pour pouvoir obtenir les types lors d'appel de methode
         parser.setResolveBindings(true);
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
         parser.setBindingsRecovery(true);
 
-        // Configurer les options du compilateur
         Map<?, ?> options = JavaCore.getOptions();
         parser.setCompilerOptions(options);
 
-        // Configurer l'environnement pour la résolution des types
-        String[] classpathEntries = {/* chemins vers les fichiers .class ou .jar */};
-        String[] sourceFolders = {projectSourcePath}; // Dossier source du projet
+        String[] classpathEntries = {};
+        String[] sourceFolders = {projectSourcePath}; //source du projet a analyser
         parser.setEnvironment(classpathEntries, sourceFolders, null, true);
 
-        // Définir la source à analyser
-        parser.setUnitName(""); // Nécessaire pour la résolution des types
+        parser.setUnitName("");
         parser.setSource(classSource);
 
-        // Créer l'AST
         return (CompilationUnit) parser.createAST(null);
     }
 
-    // Fonction pour calculer le nombre moyen de méthodes par classe
+    // Fonction utilitaires et guetteurs
+
     public double getAverageMethodsPerClass() {
         if (classCount == 0) return 0;
         return (double) methodCount / classCount;
     }
 
-    // Fonction pour calculer le nombre moyen de lignes de code par méthode
     public double getAverageLinesPerMethod() {
         if (methodCount == 0) return 0;
         return (double) lineCount / methodCount;
     }
 
-    // Fonction pour récupérer le nombre de packages
     public int getPackageCount() {
         return packages.size();
     }
 
-    // Accesseurs pour les résultats
     public int getClassCount() {
         return classCount;
     }
@@ -137,7 +131,6 @@ public class CodeAnalyzer {
         return methodCount;
     }
 
-    // Méthode pour récupérer les informations des classes analysées
     public List<ClassInfo> getClassesInfo() {
         return classesInfo;
     }

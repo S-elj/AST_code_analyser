@@ -1,4 +1,4 @@
-package toAnalyse;
+package MoreClassesToAnalyse;
 
 public class Tobacco extends Product {
     /* CONSTRUCTORS */

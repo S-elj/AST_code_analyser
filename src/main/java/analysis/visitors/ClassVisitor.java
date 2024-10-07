@@ -9,36 +9,41 @@ import org.eclipse.jdt.core.dom.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// Visiteur permettant de collecter des informations sur une classes, ses méthodes et attributs
 public class ClassVisitor extends ASTVisitor {
     private CompilationUnit compilationUnit;
-    private int classCount = 0; // Compteur pour le nombre de classes
-    private int methodCount = 0; // Compteur pour le nombre de méthodes
-    private int fieldCount = 0; // Compteur pour le nombre d'attributs
+    //compteurs:
+    private int classCount = 0;
+    private int methodCount = 0;
+    private int fieldCount = 0;
 
-    // Liste des informations de classes trouvées
+    // On fait une Liste de Classinfo pour stocker les données de chaque classes
     private List<ClassInfo> classesInfo = new ArrayList<>();
 
     public ClassVisitor(CompilationUnit compilationUnit) {
         this.compilationUnit = compilationUnit;
     }
 
+    // Visite chaque déclaration de type (classe)
     @Override
     public boolean visit(TypeDeclaration node) {
         String className = node.getName().getFullyQualifiedName();
+
+        //parcours des methodes
         List<MethodInfo> methods = new ArrayList<>();
 
         for (MethodDeclaration method : node.getMethods()) {
             String methodName = method.getName().getFullyQualifiedName();
-            int parameterCount = method.parameters().size(); // Récupérer le nombre de paramètres
+            int parameterCount = method.parameters().size(); //nombre de paramètres
 
-            // Analyser les appels de méthode dans cette méthode
+            // Analyse des appels de méthode dans la méthode
             MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
             method.accept(methodCallVisitor);
             List<MethodCallInfo> methodCalls = methodCallVisitor.getMethodCalls();
 
-            int loc = countLinesOfCode(method);
+            int loc = countLinesOfCode(method); //nombre de lignes de code
 
-            methods.add(new MethodInfo(methodName, methodCalls, parameterCount, loc)); // Passer le nombre de paramètres
+            methods.add(new MethodInfo(methodName, methodCalls, parameterCount, loc));
             methodCount++;
         }
         int attributeCount = 0;
@@ -53,9 +58,8 @@ public class ClassVisitor extends ASTVisitor {
         return super.visit(node);
     }
 
-    // Nouvelle méthode pour compter le nombre de lignes de code dans une méthode
+    // méthode utilitaire  pour compter le nombre de lignes de code dans une méthode
     private int countLinesOfCode(MethodDeclaration method) {
-        // Compter les lignes de code dans le corps de la méthode
         if (method.getBody() != null) {
             // Compter chaque ligne non vide et non uniquement des espaces
             String bodySource = method.getBody().toString();
@@ -66,12 +70,12 @@ public class ClassVisitor extends ASTVisitor {
                     loc++;
                 }
             }
-            return loc; // Retourner le nombre de lignes de code
+            return loc;
         }
-        return 0; // Si le corps de la méthode est vide
+        return 0;
     }
 
-    // Méthode pour récupérer le nombre total d'attributs
+    // + des guetteurs
     public int getFieldCount() {
         return fieldCount;
     }
@@ -84,7 +88,6 @@ public class ClassVisitor extends ASTVisitor {
         return methodCount;
     }
 
-    // Méthode pour récupérer la liste des informations de classes trouvées
     public List<ClassInfo> getClassesInfo() {
         return classesInfo;
     }

@@ -1,4 +1,4 @@
-package toAnalyse;
+package MoreClassesToAnalyse;
 
 public class Necessity extends Product {
     public Necessity(String name, double price) {
@@ -16,5 +16,8 @@ public class Necessity extends Product {
     public void printNecessityInfo() {
         // Appel d'une méthode héritée pour afficher les informations du produit
         displayProductInfo();
+    }
+
+    public void lotsOfParam(int a, String b, int c, Product p, Liquor l, Tobacco t) {
     }
 }

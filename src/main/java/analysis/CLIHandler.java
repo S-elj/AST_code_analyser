@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+
+// Classe pour creer et gerer la cli  permettant à l'utilisateur d'acceder facilment aux informations de l'analyses
 public class CLIHandler {
 
-    private CodeAnalyzer analyzer;
-    private MetricsCalculator metricsCalculator;
+    private CodeAnalyzer analyzer;            // Instance de CodeAnalyzer pour analyser le projet
+    private MetricsCalculator metricsCalculator; // Instance de MetricsCalculator pour calculer les métriques
 
     public CLIHandler(String projectSourcePath) throws IOException {
         this.analyzer = new CodeAnalyzer(projectSourcePath);
@@ -173,7 +175,7 @@ public class CLIHandler {
                     Object[] maxParamInfo = metricsCalculator.getMaxParameters(analyzer.getClassesInfo());
                     if (maxParamInfo[0] != null) {
                         System.out.println("Methode avec le nombre maximal de paramètres : ");
-                        System.out.println("Classe : " + maxParamInfo[0] + ", Méthode : " + maxParamInfo[1] + ", Paramètres : " + maxParamInfo[2]);
+                        System.out.println("Classe : " + maxParamInfo[0] + ", Méthode : " + maxParamInfo[1] + ", nombre de paramètres : " + maxParamInfo[2]);
                     } else {
                         System.out.println("Aucune méthode trouvée.");
                     }
@@ -221,7 +223,7 @@ public class CLIHandler {
         System.out.println("Methode avec le nombre maximal de paramètres : ");
         Object[] maxParamInfo = metricsCalculator.getMaxParameters(analyzer.getClassesInfo());
         if (maxParamInfo[0] != null) {
-            System.out.println("Classe : " + maxParamInfo[0] + ", Méthode : " + maxParamInfo[1] + ", Paramètres : " + maxParamInfo[2]);
+            System.out.println("Classe : " + maxParamInfo[0] + ", Méthode : " + maxParamInfo[1] + ", nombre de paramètres : " + maxParamInfo[2]);
         } else {
             System.out.println("Aucune méthode trouvée.");
         }

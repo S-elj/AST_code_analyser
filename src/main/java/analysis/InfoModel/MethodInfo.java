@@ -2,7 +2,7 @@ package analysis.InfoModel;
 
 import java.util.List;
 
-// MethodInfo.java
+//classe modelisant les informations relatives aux methodes pour faciliter leur collecte via le visitor. On a simplement besoin d'attribut et de guetteurs
 
 public class MethodInfo {
     private String methodName;

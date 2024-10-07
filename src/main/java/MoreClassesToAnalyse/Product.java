@@ -1,4 +1,4 @@
-package toAnalyse;
+package MoreClassesToAnalyse;
 
 public abstract class Product {
     /* ATTRIBUTES */

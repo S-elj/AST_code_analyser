@@ -1,5 +1,7 @@
 package analysis.InfoModel;
 
+
+// classe pour representer les informations d'attributs, pas utilisés dans les faits puisqu'on se contente de les compter
 public class AttributeInfo {
     private String attributeName;
     private String encapsulation;

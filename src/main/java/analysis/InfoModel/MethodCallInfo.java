@@ -1,5 +1,7 @@
 package analysis.InfoModel;
 
+//classe modelisant les informations relatives a un appel de methode pour faciliter leur collecte via le visitor. On a simplement besoin d'attribut et de guetteurs
+
 public class MethodCallInfo {
     private String calledMethodName;
     private String receiverType;
