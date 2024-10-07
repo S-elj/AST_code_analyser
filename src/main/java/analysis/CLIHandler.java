@@ -2,6 +2,8 @@ package analysis;
 
 import analysis.InfoModel.MethodInfo;
 
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -18,16 +20,17 @@ public class CLIHandler {
         this.analyzer = new CodeAnalyzer(projectSourcePath);
         this.analyzer.analyze();
         this.metricsCalculator = new MetricsCalculator();
+
     }
 
-    public void start() {
+    public void start() throws IOException {
         Scanner scanner = new Scanner(System.in);
         String command;
 
         System.out.println("Bienvenue dans l'analyseur de code ! Tapez 'exit' pour quitter.");
 
         while (true) {
-            System.out.print("Choisissez une option : count / avg / top / all \n");
+            System.out.print("Choisissez une option : count / avg / top / all / call-graph \n");
             command = scanner.nextLine().trim();
 
             if ("exit".equalsIgnoreCase(command)) {
@@ -48,6 +51,11 @@ public class CLIHandler {
                 case "all":
                     displayAllMetrics();
                     break;
+                case "call-graph":
+                    System.out.println("Generation du graphe d'appel");
+                    generateCallGraph();
+                    break;
+
                 default:
                     System.out.println("Commande inconnue. Essayez : count, avg, top, all, exit");
                     break;
@@ -56,6 +64,7 @@ public class CLIHandler {
 
         scanner.close();
     }
+
 
     private void handleCountOptions(Scanner scanner) {
         String choice;
@@ -231,6 +240,78 @@ public class CLIHandler {
         System.out.println("\n");
 
     }
+
+    private void generateCallGraph() throws IOException {
+        // Créer le graphe d'appel
+        CallGraph callGraph = new CallGraph();
+
+        // Analyser le projet et construire le graphe
+        analyzer.buildCallGraph(callGraph); // Passez le graphe à l'analyseur
+
+        callGraph.printGraph();
+
+        String outputDir = "output";
+        File dir = new File(outputDir);
+
+        // Créer le dossier s'il n'existe pas
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        // Exporter le graphe dans le fichier .dot
+        String dotFilePath = outputDir + "/callgraph.dot";
+        callGraph.exportToDot(dotFilePath);
+        System.out.println("Le fichier .dot a été exporté vers : " + dotFilePath);
+
+
+        // Convertir le fichier .dot en fichier .svg en utilisant Graphviz
+        String svgFilePath = outputDir + "/callgraph.svg";
+        convertDotToSvg(dotFilePath, svgFilePath);
+        System.out.println("Le fichier .svg a été exporté vers : " + svgFilePath);
+
+
+        // Ouvrir le fichier SVG dans le navigateur
+        openSvgInBrowser(svgFilePath);
+    }
+
+    private static void convertDotToSvg(String dotFilePath, String svgFilePath) throws IOException {
+        // Commande pour convertir le fichier DOT en SVG
+        String[] command = {"dot", "-Tsvg", dotFilePath, "-o", svgFilePath};
+        Process process = Runtime.getRuntime().exec(command);
+
+        try {
+            process.waitFor();  // Attendre la fin du processus
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (process.exitValue() == 0) {
+            System.out.println("Le fichier SVG a été généré avec succès : " + svgFilePath);
+        } else {
+            System.err.println("Erreur lors de la génération du fichier SVG.");
+        }
+    }
+
+    // Méthode pour ouvrir le fichier SVG dans le navigateur
+    private static void openSvgInBrowser(String svgFilePath) throws IOException {
+        File svgFile = new File(svgFilePath);
+
+        // Vérifier si le bureau est pris en charge pour ouvrir le fichier
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+
+            if (desktop.isSupported(Desktop.Action.BROWSE)) {
+                // Ouvrir le fichier SVG dans le navigateur par défaut
+                desktop.browse(svgFile.toURI());
+                System.out.println("Le fichier SVG a été ouvert dans le navigateur.");
+            } else {
+                System.err.println("Ouvrir dans le navigateur n'est pas pris en charge.");
+            }
+        } else {
+            System.err.println("Desktop n'est pas pris en charge sur ce système.");
+        }
+    }
+
 
     public static void main(String[] args) {
         if (args.length < 1) {

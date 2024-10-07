@@ -6,23 +6,17 @@ import java.util.List;
 
 public class MethodInfo {
     private String methodName;
-    private List<MethodCallInfo> methodCalls;
     private int nbLoc; // Nombre de lignes de code
     private int parameterCount;
 
-    public MethodInfo(String methodName, List<MethodCallInfo> methodCalls, int parameterCount, int loc) {
+    public MethodInfo(String methodName, int parameterCount, int loc) {
         this.methodName = methodName;
-        this.methodCalls = methodCalls;
         this.parameterCount = parameterCount;
         this.nbLoc = loc; // Initialisation des lignes de code
     }
 
     public String getMethodName() {
         return methodName;
-    }
-
-    public List<MethodCallInfo> getMethodCalls() {
-        return methodCalls;
     }
 
     public int getLoc() {
@@ -35,6 +29,6 @@ public class MethodInfo {
 
     @Override
     public String toString() {
-        return "Method: " + methodName + ",  nombre de parametres: " + parameterCount + ", LOC number: " + nbLoc + ", Calls: " + methodCalls;
+        return "Method: " + methodName + ",  nombre de parametres: " + parameterCount + ", LOC number: " + nbLoc;
     }
 }

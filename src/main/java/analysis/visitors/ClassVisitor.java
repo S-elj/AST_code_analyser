@@ -2,7 +2,6 @@ package analysis.visitors;
 
 import analysis.InfoModel.ClassInfo;
 import analysis.InfoModel.MethodInfo;
-import analysis.InfoModel.MethodCallInfo;
 
 import org.eclipse.jdt.core.dom.*;
 
@@ -33,17 +32,12 @@ public class ClassVisitor extends ASTVisitor {
         List<MethodInfo> methods = new ArrayList<>();
 
         for (MethodDeclaration method : node.getMethods()) {
-            String methodName = method.getName().getFullyQualifiedName();
+
+            String methodName = method.getName().getFullyQualifiedName();//nom complet
             int parameterCount = method.parameters().size(); //nombre de paramètres
-
-            // Analyse des appels de méthode dans la méthode
-            MethodCallVisitor methodCallVisitor = new MethodCallVisitor();
-            method.accept(methodCallVisitor);
-            List<MethodCallInfo> methodCalls = methodCallVisitor.getMethodCalls();
-
             int loc = countLinesOfCode(method); //nombre de lignes de code
 
-            methods.add(new MethodInfo(methodName, methodCalls, parameterCount, loc));
+            methods.add(new MethodInfo(methodName, parameterCount, loc));
             methodCount++;
         }
         int attributeCount = 0;
@@ -76,6 +70,7 @@ public class ClassVisitor extends ASTVisitor {
     }
 
     // + des guetteurs
+
     public int getFieldCount() {
         return fieldCount;
     }

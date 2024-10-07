@@ -10,6 +10,7 @@ import java.util.Set;
 
 import analysis.InfoModel.ClassInfo;
 import analysis.visitors.ClassVisitor;
+import analysis.visitors.GraphVisitor;
 import analysis.visitors.LineVisitor;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.JavaCore;
@@ -18,7 +19,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /*Classe principale d'analyse de code qui parcourt les fichiers source d'un projet,crée un AST (Abstract Syntax Tree) pour chaque fichier,
-et instancie les différents visiteurs pour collecter les informations nécessaires à l'analyse */
+et instancie les différents visiteurs pour collecter les informations nécessaires à l'analyse  ou generer un graph d'appel*/
 public class CodeAnalyzer {
 
     private String projectSourcePath;
@@ -67,6 +68,27 @@ public class CodeAnalyzer {
             lineCount += lineVisitor.getLineCount();
         }
     }
+
+
+    public void buildCallGraph(CallGraph callGraph) throws IOException {
+        // Récupérer tous les fichiers .java
+        final File folder = new File(projectSourcePath);
+        ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
+
+        // Parcourir chaque fichier .java
+        for (File fileEntry : javaFiles) {
+            String content = FileUtils.readFileToString(fileEntry, "UTF-8");
+
+            // Créer l'AST pour le fichier courant
+            CompilationUnit parse = parse(content.toCharArray());
+
+            // Analyse des classes et ajout des informations d'appel au graphe
+            GraphVisitor classVisitor = new GraphVisitor(callGraph);  // Passer le CallGraph
+            parse.accept(classVisitor);
+
+        }
+    }
+
 
     // Fonction pour lister les fichiers .java
     private ArrayList<File> listJavaFilesForFolder(final File folder) {
