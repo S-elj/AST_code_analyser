@@ -2,7 +2,7 @@ package analysis.InfoModel;
 
 import java.util.List;
 
-//classe modelisant les informations d'une classes pour faciliter leur collecte via le visitor. On a simplement besoin d'attribut et de guetteurs
+//classe modelisant les informations d'une classes pour faciliter leur collecte par le visiteur. On a simplement besoin d'attribut et de guetteurs
 
 public class ClassInfo {
     private String className;
